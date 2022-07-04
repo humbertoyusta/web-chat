@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule, ConfigService, ConfigType } from '@nestjs/config';
+import { ConfigModule, ConfigType } from '@nestjs/config';
 import databaseConfig from './config/database.config';
 
 @Module({
@@ -13,9 +13,7 @@ import databaseConfig from './config/database.config';
     UsersModule, 
     AuthModule,
     TypeOrmModule.forRootAsync({
-      imports: [
-        ConfigModule.forFeature(databaseConfig),
-      ],
+      imports: [ConfigModule.forFeature(databaseConfig)],
       inject: [databaseConfig.KEY],
       useFactory: async (dbConfig: ConfigType<typeof databaseConfig>) => {
         return ({
