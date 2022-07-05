@@ -12,6 +12,6 @@ export class AuthController {
 
     @Post('/sign-up')
     async signUp(@Body() user: CreateUserDto): Promise<void> {
-        this.usersService.createUser(user);
+        await this.usersService.createUser(user);
     }
 }
