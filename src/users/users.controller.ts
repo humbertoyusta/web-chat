@@ -12,6 +12,11 @@ export class UsersController {
 
     @Get()
     async findAll(): Promise<User[]> {
-        return await this.usersService.findAll();
+        // Get all users
+        const allUsers = await this.usersService.findAll();
+        // Removing passwords
+        for (let user of allUsers)
+            delete user.password;
+        return allUsers;
     }
 }
