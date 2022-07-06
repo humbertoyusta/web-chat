@@ -4,7 +4,6 @@ https://docs.nestjs.com/controllers#controllers
 
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { User } from 'src/users/entities/user.entity';
-import { UsersService } from 'src/users/users.service';
 import { AuthService } from './auth.service';
 import { SignInUserDto } from './dto/sign-in-user.dto';
 import { SignUpUserDto } from './dto/sign-up-user.dto';

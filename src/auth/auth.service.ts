@@ -36,7 +36,7 @@ export class AuthService {
             };
         }
         else {
-            throw new UnauthorizedException();
+            throw new UnauthorizedException('Incorrect username or password');
         }
     }
 }
