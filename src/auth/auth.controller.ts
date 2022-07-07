@@ -19,7 +19,7 @@ export class AuthController {
         return await this.authService.signUp(user);
     }
 
-    @Get('sign-in')
+    @Post('sign-in')
     async signIn(@Body() user: SignInUserDto) {
         return await this.authService.signIn(user);
     }
