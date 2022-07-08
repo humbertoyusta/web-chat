@@ -12,5 +12,5 @@ export class User {
 
     @Column()
     @IsString()
-    password: string;
+    passwordHash: string;
 }

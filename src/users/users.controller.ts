@@ -3,6 +3,7 @@ https://docs.nestjs.com/controllers#controllers
 */
 
 import { Controller, Get, UseGuards } from '@nestjs/common';
+import { UserNoPassDto } from './dto/user.no-pass.dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 
@@ -11,12 +12,14 @@ export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
     @Get()
-    async findAll(): Promise<User[]> {
+    async findAll(): Promise<UserNoPassDto[]> {
         // Get all users
         const allUsers = await this.usersService.findAll();
         // Removing passwords
-        for (let user of allUsers)
-            delete user.password;
-        return allUsers;
+        const listUsers = allUsers.map((user) => {
+            const {passwordHash, ...userNoPass} = user;
+            return userNoPass as UserNoPassDto;
+        })
+        return listUsers;
     }
 }
