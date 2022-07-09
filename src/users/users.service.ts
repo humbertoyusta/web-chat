@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SignUpUserDto } from 'src/auth/dto/sign-up-user.dto';
 import { Repository } from 'typeorm';
-import { UserNoPassDto } from './dto/user.no-pass.dto';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
@@ -15,6 +14,12 @@ export class UsersService {
         private readonly usersRepository: Repository<User>,
         private readonly configService: ConfigService,
     ) {}
+
+    private async hashPassword(userPlainPass : SignUpUserDto | UpdateUserDto) {
+        const hash = await bcrypt.hash(userPlainPass.password, this.configService.get<number>('bcryptSaltRounds'));
+        const {password, ...userHashPass} = {...userPlainPass, passwordHash: hash};
+        return userHashPass;
+    }
 
     async findAll(): Promise<User[]> {
         return await this.usersRepository.find();
@@ -33,9 +38,7 @@ export class UsersService {
     }
 
     async createUser(user: SignUpUserDto): Promise<User> {
-        const hash = await bcrypt.hash(user.password, this.configService.get<number>('bcryptSaltRounds'));
-        const {password, ...toDbUser} = {...user, passwordHash: hash};
-        return await this.usersRepository.save(toDbUser);
+        return await this.usersRepository.save(await this.hashPassword(user));
     }
 
     async deleteUser(user: User): Promise<User> {
@@ -44,6 +47,9 @@ export class UsersService {
     }
 
     async updateUser(id: number, updUser: UpdateUserDto) {
+        if (updUser.hasOwnProperty('password'))
+            updUser = await this.hashPassword(updUser);
+
         const userInDb = await this.findOne(id);
         const updatedUser = await this.usersRepository.preload({
             ...userInDb,
