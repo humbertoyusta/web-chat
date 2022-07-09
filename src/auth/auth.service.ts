@@ -2,7 +2,7 @@
 https://docs.nestjs.com/providers#services
 */
 
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserNoPassDto } from 'src/users/dto/user.no-pass.dto';
 import { UsersService } from 'src/users/users.service';
@@ -10,6 +10,7 @@ import { SignInUserDto } from './dto/sign-in-user.dto';
 import { SignUpUserDto } from './dto/sign-up-user.dto';
 import * as bcrypt from 'bcrypt';
 import { User } from 'src/users/entities/user.entity';
+import { JwtTokenUserDto } from './dto/jwt-token-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -30,8 +31,20 @@ export class AuthService {
     }
 
     private async validateUser(user: SignInUserDto): Promise<User> {
-        const userInDb = await this.usersService.findOneByUsername(user.username);
+        let userInDb: User = await this.usersService.findOneByUsername(user.username);
+
         if (userInDb && await bcrypt.compare(user.password, userInDb.passwordHash)) {
+            return userInDb;
+        }
+        else {
+            throw new UnauthorizedException('Incorrect username or password');
+        }
+    }
+
+    private async validateUserbyIdandPwd(id: number, password: string) {
+        let userInDb: User = await this.usersService.findOne(id);
+
+        if (userInDb && await bcrypt.compare(password, userInDb.passwordHash)) {
             return userInDb;
         }
         else {
@@ -43,14 +56,15 @@ export class AuthService {
         const validatedUser = await this.validateUser(user);
         return {
             access_token: this.jwtService.sign({
-                user: validatedUser.username,
-                password: validatedUser.passwordHash,
+                id: validatedUser.id,
+                username: validatedUser.username,
+                passwordHash: validatedUser.passwordHash,
             })
         };
     }
 
-    async deleteUser(user: SignInUserDto) {
-        const validatedUser = await this.validateUser(user);
+    async deleteUser(user: JwtTokenUserDto, password: string) {
+        const validatedUser = await this.validateUserbyIdandPwd(user.id, password);
         const {passwordHash, ...responseUser} = await this.usersService.deleteUser(validatedUser);
         return responseUser as UserNoPassDto;
     }
