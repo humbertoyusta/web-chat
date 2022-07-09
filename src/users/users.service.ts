@@ -6,6 +6,7 @@ import { UserNoPassDto } from './dto/user.no-pass.dto';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
+import { UpdateUserDto } from 'src/auth/dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -40,5 +41,14 @@ export class UsersService {
     async deleteUser(user: User): Promise<User> {
         await this.usersRepository.delete({id: user.id});
         return user;
+    }
+
+    async updateUser(id: number, updUser: UpdateUserDto) {
+        const userInDb = await this.findOne(id);
+        const updatedUser = await this.usersRepository.preload({
+            ...userInDb,
+            ...updUser,
+        });
+        return await this.usersRepository.save(updatedUser);
     }
 }

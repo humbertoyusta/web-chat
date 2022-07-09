@@ -11,6 +11,7 @@ import { SignUpUserDto } from './dto/sign-up-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { JwtTokenUserDto } from './dto/jwt-token-user.dto';
 import { OnlyPasswordDto } from './dto/only-password.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('api/auth')
 export class AuthController {
@@ -36,8 +37,10 @@ export class AuthController {
         return await this.authService.deleteUser(user, password);
     }
 
-    //@Patch()
-    //async updateUser(@Req() request: Request, @Body() user: UpdateUserDto) {
-    //    return this.jwtService.verify(request.headers.authorization);
-    //}
+    @Patch()
+    async updateUser(@Req() request: Request, @Body() updUser: UpdateUserDto) {
+        const authUser: JwtTokenUserDto = 
+            await this.jwtService.verify(request.headers.authorization);
+        return await this.authService.updateUser(authUser.id, updUser);
+    }
 }

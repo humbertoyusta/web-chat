@@ -11,6 +11,7 @@ import { SignUpUserDto } from './dto/sign-up-user.dto';
 import * as bcrypt from 'bcrypt';
 import { User } from 'src/users/entities/user.entity';
 import { JwtTokenUserDto } from './dto/jwt-token-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -66,6 +67,15 @@ export class AuthService {
     async deleteUser(user: JwtTokenUserDto, password: string) {
         const validatedUser = await this.validateUserbyIdandPwd(user.id, password);
         const {passwordHash, ...responseUser} = await this.usersService.deleteUser(validatedUser);
+        return responseUser as UserNoPassDto;
+    }
+
+    async updateUser(id: number, updUser: UpdateUserDto) {
+        if (updUser.hasOwnProperty('username'))
+            if (await this.usersService.findOneByUsername(updUser.username))
+                throw new ConflictException('There is a registered user with that username');
+
+        const {passwordHash, ...responseUser} = await this.usersService.updateUser(id, updUser);
         return responseUser as UserNoPassDto;
     }
 }
