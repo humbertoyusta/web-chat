@@ -71,9 +71,11 @@ export class AuthService {
     }
 
     async updateUser(id: number, updUser: UpdateUserDto) {
-        if (updUser.hasOwnProperty('username'))
-            if (await this.usersService.findOneByUsername(updUser.username))
+        if (updUser.hasOwnProperty('username')){
+            const userWithSameName = await this.usersService.findOneByUsername(updUser.username);
+            if (userWithSameName && userWithSameName.id != id)
                 throw new ConflictException('There is a registered user with that username');
+        }
 
         const {passwordHash, ...responseUser} = await this.usersService.updateUser(id, updUser);
         return responseUser as UserNoPassDto;
