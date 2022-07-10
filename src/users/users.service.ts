@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SignUpUserDto } from 'src/auth/dto/sign-up-user.dto';
 import { Repository } from 'typeorm';
@@ -42,8 +42,22 @@ export class UsersService {
     }
 
     async deleteUser(user: User): Promise<User> {
-        await this.usersRepository.delete({id: user.id});
-        return user;
+        const deleteResult = await this.usersRepository.createQueryBuilder()
+            .delete()
+            .whereInIds(user.id)
+            .returning('id')
+            .execute();
+        switch (deleteResult.affected) {
+            case 0:
+                return undefined;
+            case 1:
+                if (deleteResult.raw[0].id === user.id)
+                    return user;
+                else
+                    throw new InternalServerErrorException();
+            default:
+                throw new InternalServerErrorException();
+        }
     }
 
     async updateUser(id: number, updUser: UpdateUserDto) {
