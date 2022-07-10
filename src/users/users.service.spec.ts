@@ -13,6 +13,7 @@ import { UsersService } from './users.service';
 import * as bcrypt from 'bcrypt';
 import appConfig from '../config/app.config';
 import { InternalServerErrorException } from '@nestjs/common';
+import { UpdateUserDto } from '../auth/dto/update-user.dto';
 
 type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
 const queryBuilder = {
@@ -49,6 +50,15 @@ describe('UsersService', () => {
         password: '83hr023',
     }
 
+    const exampleUpdateUser: UpdateUserDto = {
+        username: 'jane',
+        password: '293fre',
+    }
+
+    const exampleUpdateUserNoPass: UpdateUserDto = {
+        username: 'jane',
+    }
+
     beforeAll(async () => {
         const moduleRef = await Test.createTestingModule({
             imports: [
@@ -74,7 +84,6 @@ describe('UsersService', () => {
     it('should be defined', () => {
         expect(usersService).toBeDefined();
         expect(usersRepository).toBeDefined();
-        expect(usersRepository.find).toBeDefined();
     });
 
     describe('findAll', () => {
@@ -131,14 +140,19 @@ describe('UsersService', () => {
 
     describe('createUser', () => {
         it('should return the created user with hashed password', async () => {
-            usersRepository.save.mockReturnValue(exampleUser);
+            usersRepository.save.mockImplementation((dto) => {
+                return {
+                    id: 1,
+                    ...dto,
+                }
+            });
 
             const createdUser: User = await usersService.createUser(exampleSignUpUser);
-
+            
             let {passwordHash, ...createdUserNoPass} = createdUser;
 
             expect(createdUserNoPass as UserNoPassDto).toEqual(exampleUserNoPass);
-            expect(bcrypt.compare(exampleSignUpUser.password, passwordHash));
+            expect(await bcrypt.compare(exampleSignUpUser.password, passwordHash)).toEqual(true);
         });
     });
 
@@ -185,6 +199,45 @@ describe('UsersService', () => {
                 await expect(usersService.deleteUser(exampleUser))
                     .rejects
                     .toThrowError(new InternalServerErrorException());
+            });
+        });
+    });
+
+    describe('updateUser', () => {
+        describe('when the username and password are updated', () => {
+            it('should return the updated user', async () => {
+                usersRepository.findOne.mockReturnValue(exampleUser);
+                usersRepository.preload.mockImplementation((dto) => ({...exampleUser, ...dto}));
+                usersRepository.save.mockImplementation((dto) => dto);
+
+                const {passwordHash, ...updatedUser} = await usersService.updateUser(exampleUser.id, exampleUpdateUser);
+
+                const expectedUser = {...exampleUserNoPass, ...exampleUpdateUserNoPass};
+
+                expect(updatedUser).toEqual(expectedUser);
+                expect(await bcrypt.compare(exampleUpdateUser.password, passwordHash)).toEqual(true);
+            });
+        });
+        describe('when password is not updated', () => {
+            it('should return updated user with old password', async () => {
+                usersRepository.findOne.mockReturnValue(exampleUser);
+                usersRepository.preload.mockImplementation((dto) => ({...exampleUser, ...dto}));
+                usersRepository.save.mockImplementation((dto) => dto);
+
+                const updatedUser = await usersService.updateUser(exampleUser.id, exampleUpdateUserNoPass as UpdateUserDto);
+
+                const expectedUser = {...exampleUser, ...exampleUpdateUserNoPass};
+
+                expect(updatedUser).toEqual(expectedUser);
+            });
+        });
+        describe('when user is not found', () => {
+            it('should return undefined', async () => {
+                usersRepository.preload.mockReturnValue(undefined);
+
+                const updatedUser = await usersService.updateUser(-exampleUser.id, exampleSignUpUser as UpdateUserDto);
+
+                expect(updatedUser).toBeUndefined();
             });
         });
     });
