@@ -4,12 +4,12 @@ https://docs.nestjs.com/providers#services
 
 import { ConflictException, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserNoPassDto } from 'src/users/dto/user.no-pass.dto';
-import { UsersService } from 'src/users/users.service';
+import { UserNoPassDto } from '../users/dto/user.no-pass.dto';
+import { UsersService } from '../users/users.service';
 import { SignInUserDto } from './dto/sign-in-user.dto';
 import { SignUpUserDto } from './dto/sign-up-user.dto';
 import * as bcrypt from 'bcrypt';
-import { User } from 'src/users/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { JwtTokenUserDto } from './dto/jwt-token-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 

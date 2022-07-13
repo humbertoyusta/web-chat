@@ -2,9 +2,8 @@
 https://docs.nestjs.com/controllers#controllers
 */
 
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { UserNoPassDto } from './dto/user.no-pass.dto';
-import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 
 @Controller('api/users')

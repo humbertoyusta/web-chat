@@ -4,7 +4,7 @@ https://docs.nestjs.com/controllers#controllers
 
 import { Body, Controller, Delete, Get, Patch, Post, Req } from '@nestjs/common';
 import { Request } from 'express';
-import { UserNoPassDto } from 'src/users/dto/user.no-pass.dto';
+import { UserNoPassDto } from '../users/dto/user.no-pass.dto';
 import { AuthService } from './auth.service';
 import { SignInUserDto } from './dto/sign-in-user.dto';
 import { SignUpUserDto } from './dto/sign-up-user.dto';
