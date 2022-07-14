@@ -18,11 +18,12 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
-    "pretest:int": "docker-compose up -d test-db",
+    "before-test": "docker-compose up -d test-db",
+    "actual-test:e2e": "jest --config ./test/jest-e2e.json",
     "actual-test:int": "jest --config ./test/jest-int.json",
-    "after-test:int": "docker-compose stop test-db && docker-compose rm -f test-db",
-    "test:int": "npm-run-all actual-test:int after-test:int --continue-on-error"
+    "after-test": "docker-compose stop test-db && docker-compose rm -f test-db",
+    "test:int": "npm-run-all before-test actual-test:int after-test --continue-on-error",
+    "test:e2e": "npm-run-all before-test actual-test:e2e after-test --continue-on-error"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
