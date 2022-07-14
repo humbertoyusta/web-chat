@@ -112,7 +112,7 @@ describe('App (e2e)', () => {
           return await request(app.getHttpServer())
                         .post('/api/auth/sign-in')
                         .send(signUpUserA as SignInUserDto)
-                        .expect(HttpStatus.ACCEPTED)
+                        .expect(HttpStatus.CREATED)
                         .then((request) => {
                           jwtTokenA = request.body.access_token;
                         });
