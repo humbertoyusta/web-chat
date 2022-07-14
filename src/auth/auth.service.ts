@@ -64,8 +64,8 @@ export class AuthService {
         };
     }
 
-    async deleteUser(user: JwtTokenUserDto, password: string) {
-        const validatedUser = await this.validateUserbyIdandPwd(user.id, password);
+    async deleteUser(id: number, password: string) {
+        const validatedUser = await this.validateUserbyIdandPwd(id, password);
         const {passwordHash, ...responseUser} = await this.usersService.deleteUser(validatedUser);
         return responseUser as UserNoPassDto;
     }

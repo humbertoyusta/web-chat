@@ -34,7 +34,7 @@ export class AuthController {
     async deleteUser(@Req() request: Request, @Body() {password}: OnlyPasswordDto): Promise<UserNoPassDto> {
         const user: JwtTokenUserDto = 
             await this.jwtService.verify(request.headers.authorization);
-        return await this.authService.deleteUser(user, password);
+        return await this.authService.deleteUser(user.id, password);
     }
 
     @Patch()
