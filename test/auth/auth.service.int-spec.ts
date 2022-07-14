@@ -4,15 +4,15 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConflictException, INestApplication, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { SignInUserDto } from 'src/auth/dto/sign-in-user.dto';
-import { AuthService } from 'src/auth/auth.service';
-import { SignUpUserDto } from 'src/auth/dto/sign-up-user.dto';
-import { UpdateUserDto } from 'src/auth/dto/update-user.dto';
-import { UserNoPassDto } from 'src/users/dto/user.no-pass.dto';
-import appConfig from 'src/config/app.config';
-import databaseConfig from 'src/config/database.config';
-import { UsersModule } from 'src/users/users.module';
-import { AuthController } from 'src/auth/auth.controller';
+import { SignInUserDto } from '../../src/auth/dto/sign-in-user.dto';
+import { AuthService } from '../../src/auth/auth.service';
+import { SignUpUserDto } from '../../src/auth/dto/sign-up-user.dto';
+import { UpdateUserDto } from '../../src/auth/dto/update-user.dto';
+import { UserNoPassDto } from '../../src/users/dto/user.no-pass.dto';
+import appConfig from '../../src/config/app.config';
+import databaseConfig from '../../src/config/database.config';
+import { UsersModule } from '../../src/users/users.module';
+import { AuthController } from '../../src/auth/auth.controller';
 
 interface AccessToken {
   id: number,
