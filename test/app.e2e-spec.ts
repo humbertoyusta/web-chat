@@ -109,7 +109,7 @@ describe('App (e2e)', () => {
       });
       describe('signIn A', () => {
         it('should return a jwt token', async () => {
-          return await request(app.getHttpServer)
+          return await request(app.getHttpServer())
                         .post('/api/auth/sign-in')
                         .send(signUpUserA as SignInUserDto)
                         .expect(HttpStatus.ACCEPTED)
