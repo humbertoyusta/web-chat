@@ -1,3 +1,4 @@
+import { MessagesModule } from './messages/messages.module';
 import { Module, ValidationPipe } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -14,7 +15,8 @@ import { APP_PIPE } from '@nestjs/core';
     ConfigModule.forRoot({
       load: [appConfig],
     }),
-    UsersModule, 
+    MessagesModule,
+    UsersModule,
     AuthModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule.forFeature(databaseConfig)],
@@ -45,4 +47,4 @@ import { APP_PIPE } from '@nestjs/core';
     }
   ],
 })
-export class AppModule {}
+export class AppModule { }
