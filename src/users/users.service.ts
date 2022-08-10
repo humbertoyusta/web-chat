@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { ConflictException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SignUpUserDto } from '../auth/dto/sign-up-user.dto';
 import { Repository } from 'typeorm';
@@ -32,9 +32,13 @@ export class UsersService {
      * @param reqId 
      * @returns the required user or undefined if no user is found
      */
-    async findOne(reqId: number): Promise<User> {
+    async findOne(reqId: number, options?: {loadContacts?: boolean}): Promise<User> {
+        const relationsToLoad: string[] = [];
+        if (options && options.loadContacts)
+            relationsToLoad.push("contacts");
         return await this.usersRepository.findOne({
             where: {id: reqId},
+            relations: relationsToLoad,
         });
     }
 
@@ -55,7 +59,9 @@ export class UsersService {
      * @returns the user created
      */
     async createUser(user: SignUpUserDto): Promise<User> {
-        return await this.usersRepository.save(await this.hashPassword(user));
+        const contactList: User[] = [];
+        const userToCreate = {...user, contacts: contactList};
+        return await this.usersRepository.save(await this.hashPassword(userToCreate));
     }
 
     /**
@@ -98,6 +104,18 @@ export class UsersService {
         });
         if (updatedUser)
             return await this.usersRepository.save(updatedUser);
+        else 
+            return undefined;
+    }
+
+    async addContact(user: User, newContact: User) {
+        user.contacts.push(newContact);
+
+        const updatedUser = await this.usersRepository.preload(user);
+        if (updatedUser) {
+            await this.usersRepository.save(updatedUser);
+            return true;
+        }
         else 
             return undefined;
     }
