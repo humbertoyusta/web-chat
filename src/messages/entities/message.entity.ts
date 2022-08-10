@@ -1,6 +1,6 @@
 import { IsString } from "class-validator";
 import { User } from "src/users/entities/user.entity";
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Message {
@@ -18,5 +18,6 @@ export class Message {
     text: string;
 
     @CreateDateColumn()
+    @Index()
     sentAt: Date;
 };
