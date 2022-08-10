@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { PaginationQueryDto } from './dto/pagination-query.dto';
 import { Message } from './entities/message.entity';
 import { MessagesService } from './messages.service';
 
@@ -14,17 +15,26 @@ export class MessagesController {
     }
 
     @Get(':id')
-    async findAll(@Param('id') id: number): Promise<Message[]> {
-        return await this.messagesService.findAll(id);
+    async findAll(
+        @Param('id') id: string, 
+        @Query() paginationQueryDto: PaginationQueryDto
+    ): Promise<Message[]> {
+        return await this.messagesService.findAll(+id, paginationQueryDto);
     }
 
     @Get(':id/sent')
-    async findAllSent(@Param('id') id: number): Promise<Message[]> {
-        return await this.messagesService.findAll(id, {onlySent: true});
+    async findAllSent(
+        @Param('id') id: string, 
+        @Query() paginationQueryDto: PaginationQueryDto
+    ): Promise<Message[]> {
+        return await this.messagesService.findAll(+id, paginationQueryDto, {onlySent: true});
     }
     
     @Get(':id/received')
-    async findAllReceived(@Param('id') id: string): Promise<Message[]> {
-        return await this.messagesService.findAll(+id, {onlyReceived: true});
+    async findAllReceived(
+        @Param('id') id: string, 
+        @Query() paginationQueryDto: PaginationQueryDto
+    ): Promise<Message[]> {
+        return await this.messagesService.findAll(+id, paginationQueryDto, {onlyReceived: true});
     }
 }

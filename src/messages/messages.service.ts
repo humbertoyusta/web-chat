@@ -6,7 +6,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
+import { PaginationQueryDto } from './dto/pagination-query.dto';
 import { Message } from './entities/message.entity';
+
+const MESSAGES_LIMIT = 20;
 
 @Injectable()
 export class MessagesService {
@@ -21,22 +24,46 @@ export class MessagesService {
         return await this.messagesRepository.save({ text, sender, receiver });
     }
 
-    async findAll(id: number, options?: { onlySent?: boolean, onlyReceived?: boolean }): Promise<Message[]> {
-        let messagesList: Message[] = [];
+    async findAll(id: number, paginationQueryDto: PaginationQueryDto, options?: { onlySent?: boolean, onlyReceived?: boolean }): Promise<Message[]> {
         if (options && options.onlySent && options.onlyReceived)
-            return messagesList;
-        else if (options && options.onlySent)
-            messagesList = await this.messagesRepository.find({ where: { sender: { id } }, relations: ["receiver"], order: {sentAt: 1}});
-        else if (options && options.onlyReceived)
-            messagesList = await this.messagesRepository.find({ where: { receiver: { id } }, relations: ["receiver"] });
-        else
-            messagesList = await this.messagesRepository.find({ where: { sender: { id } } || { receiver: { id } }, relations: ["receiver"] });
+            return [];
 
-        for (const message of messagesList) {
-            const { passwordHash, ...receiverNoPass } = message.receiver;
-            message.receiver = receiverNoPass as User;
+        let whereOptions, relationOptions: string[];
+        if (options && options.onlySent)
+        {
+            whereOptions = {sender: {id}};
+            relationOptions = ["receiver"];
+        }
+        else if (options && options.onlyReceived)
+        {
+            whereOptions = {receiver: {id}};
+            relationOptions = ["sender"];
+        }
+        else 
+        {
+            whereOptions = [{ sender: { id } }, { receiver: { id } }];
+            relationOptions = ["sender", "receiver"];
         }
 
+        const messagesList = await this.messagesRepository.find({ 
+            where: whereOptions, 
+            order: {sentAt: -1},
+            relations: relationOptions,
+            take: paginationQueryDto.limit || MESSAGES_LIMIT,
+            skip: paginationQueryDto.offset || 0,
+        });
+
+        for (const message of messagesList) {
+            if (message.receiver) {
+                const { passwordHash, ...receiverNoPass } = message.receiver;
+                message.receiver = receiverNoPass as User;
+            }
+            if (message.sender) {
+                const { passwordHash, ...senderNoPass } = message.sender;
+                message.sender = senderNoPass as User;
+            }
+        }
+    
         return messagesList;
     }
 }
