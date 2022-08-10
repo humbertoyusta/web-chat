@@ -1,3 +1,4 @@
+import { ContactsModule } from './contacts/contacts.module';
 import { MessagesModule } from './messages/messages.module';
 import { Module, ValidationPipe } from '@nestjs/common';
 import { AppController } from './app.controller';
@@ -15,9 +16,10 @@ import { APP_PIPE } from '@nestjs/core';
     ConfigModule.forRoot({
       load: [appConfig],
     }),
-    MessagesModule,
     UsersModule,
     AuthModule,
+    MessagesModule,
+    ContactsModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule.forFeature(databaseConfig)],
       inject: [databaseConfig.KEY],

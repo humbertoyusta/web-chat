@@ -107,16 +107,4 @@ export class UsersService {
         else 
             return undefined;
     }
-
-    async addContact(user: User, newContact: User) {
-        user.contacts.push(newContact);
-
-        const updatedUser = await this.usersRepository.preload(user);
-        if (updatedUser) {
-            await this.usersRepository.save(updatedUser);
-            return true;
-        }
-        else 
-            return undefined;
-    }
 }
